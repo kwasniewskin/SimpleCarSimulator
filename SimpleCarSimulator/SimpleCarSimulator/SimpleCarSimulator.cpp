@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <conio.h>
 #include "Car.h"
+#include <thread>
 
 using namespace std;
 
@@ -62,37 +63,55 @@ int main()
         action = chooseAction();
 
         switch (action) {
-        case 0:
+        case 0:     // Logika silnika
             if (Opelek.isEngineOn()) {
                 Opelek.turnEngineOff();
+                while (!Opelek.isEngineOn() && Opelek.getSpeed() > 0) {
+                    clearConsole();
+					Opelek.decreaseSpeedEngineOff(); // Wytracanie prędkości
+                    Opelek.displayStatus(); // Wyświetl status po zmianie prędkości
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Opóźnienie
+                }
             }
             else {
                 Opelek.turnEngineOn();
             }
             break;
-        case 1:
+		case 1:	 // Logika hamulca ręcznego 
             if (Opelek.isHandBrakeActive()) {
                 Opelek.turnHandBrakeOff();
             }
             else {
                 Opelek.turnHandBrakeOn();
+                while (Opelek.isHandBrakeActive() && Opelek.getSpeed() > 0) {
+                    Opelek.decreaseSpeedHandBrake(); // Wytracanie prędkości
+                    clearConsole();
+                    Opelek.displayStatus(); // Wyświetl status po zmianie prędkości
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Opóźnienie
+                }
             }
             break;
-        case 2:
+		case 2:     // Logika zmiany biegu na wyższy
             Opelek.gearUp();
             break;
-        case 3:
+        case 3:     // Logika zmiany biegu na niższy
             Opelek.gearDown();
+            while (Opelek.getSpeed() > Opelek.getCurrentGear() * 30) {
+                clearConsole();
+				Opelek.adjustSpeedForGearDown(); // Wytracanie prędkości
+                Opelek.displayStatus(); // Wyświetl status po zmianie prędkości
+                std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Opóźnienie
+            }
             break;
-        case 4:
+		case 4:     // Logika tankowania
             cout << "Enter amount to refuel: ";
             cin >> refuelAmount;
             Opelek.refuel(refuelAmount);
             break;
-        case 5:
+		case 5:     // Logika hamowania
             Opelek.brake();
             break;
-        case 6:
+		case 6:     // Logika przyspieszania
             Opelek.accelerate();
             break;
         case 9:

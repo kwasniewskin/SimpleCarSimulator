@@ -16,13 +16,17 @@ public:
 	Car();
 	void turnEngineOn();
 	void turnEngineOff();
+	void decreaseSpeedEngineOff();
 	void accelerate();
 	void brake();
 	void refuel(int amount);
 	void gearUp();
 	void gearDown();
+	void adjustSpeedForGearDown();
 	void turnHandBrakeOn();
 	void turnHandBrakeOff();
+	void decreaseSpeedHandBrake();
+	void adjustSpeedForGear();
 	
 	//Get methods
 	bool isEngineOn() const;
