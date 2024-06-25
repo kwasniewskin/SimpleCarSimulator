@@ -1,5 +1,6 @@
 #include "Car.h"
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -7,60 +8,68 @@ using namespace std;
 Car::Car() :
 	IsEngineOn(false),
 	speed(0),
-	fuelConsumption(5),
-	fuelLevel(40),
+	fuelLevel(30),
 	maxFuelCapacity(50),
 	currentGear(0),
-	engineTemperature(25),
 	IsHandBrakeActive(true),
 	milage(0)
 {
-
 }
 
-//function implementation
+#pragma region Function Implementation
+
 void Car::turnEngineOn() {
 	IsEngineOn = true;
 }
 
 void Car::turnEngineOff() {
 	IsEngineOn = false;
-	decreaseSpeedEngineOff();
 }
 
-void Car::decreaseSpeedEngineOff() {
-	if (!IsEngineOn && speed > 0) {
-		speed -= 2; // Zmniejsz prêdkoœæ o 2 km/h, gdy silnik jest wy³¹czony
+void Car::changeEngineStatus() {
+	if (isEngineOn()) {
+		turnEngineOff();
+		if (speed > 0)
+			decreaseSpeed(20);
+	}
+	else {
+		turnEngineOn();
+	}
+}
+
+void Car::decreaseSpeed(int value) {
+	if (speed > 0) {
+		speed -= value;
+	}
+
+	if (speed < 0) {
+		speed = 0;
 	}
 }
 
 void Car::turnHandBrakeOn() {
-    IsHandBrakeActive = true;
+	IsHandBrakeActive = true;
 }
-
 
 void Car::turnHandBrakeOff() {
 	IsHandBrakeActive = false;
 }
 
-
-void Car::decreaseSpeedHandBrake() {
-    if (IsHandBrakeActive && speed > 0) {
-        speed -= 1; // Zmniejsz prêdkoœæ o 1 km/h
-    }
-}
-
-void Car::adjustSpeedForGear() {
-	int maxSpeedForGear = currentGear * 30;
-	if (speed > maxSpeedForGear) {
-		speed = maxSpeedForGear;
+void Car::changeHandBrakeStatus() {
+	if (isHandBrakeActive()) {
+		turnHandBrakeOff();
+	}
+	else {
+		turnHandBrakeOn();
+		if (speed != 0)
+			decreaseSpeed(30);
 	}
 }
 
 void Car::gearUp() {
 	if (currentGear < 6) {
 		currentGear++;
-		adjustSpeedForGear();
+		adjustSpeedForGearUp();
 	}
 }
 
@@ -72,11 +81,18 @@ void Car::gearDown() {
 	}
 }
 
+void Car::adjustSpeedForGearUp() {
+	int maxSpeedForGear = currentGear * 30;
+	if (speed > maxSpeedForGear) {
+		speed = maxSpeedForGear;
+	}
+}
+
 void Car::adjustSpeedForGearDown() {
-    int maxSpeedForCurrentGear = currentGear * 30;
-    if (speed > maxSpeedForCurrentGear) {
-        speed -= 5;
-    }
+	int maxSpeedForCurrentGear = currentGear * 30;
+	if (speed > maxSpeedForCurrentGear) {
+		speed -= 10;
+	}
 }
 
 
@@ -91,20 +107,57 @@ void Car::refuel(int amount) {
 
 void Car::brake() {
 	if (speed > 0) {
-		speed -= 1;
+		speed -= 10;
 	}
 }
 
 void Car::accelerate() {
 	if (IsHandBrakeActive == false && IsEngineOn == true && fuelLevel > 0 && currentGear != 0) {
 		int maxSpeedForGear = currentGear * 30;
-		if (speed < maxSpeedForGear) {
-			speed += 1;
+		if (speed < maxSpeedForGear && fuelLevel > 0) {
+			speed += 10;
 		}
 	}
 }
 
-//Get methods
+void Car::updateMileage() {
+	if (speed > 0) {
+		float distance = speed / static_cast<float>(3600);
+		milage += distance;
+	}
+}
+
+void Car::consumeFuel() {
+	float fuelConsumption = 0.00f;
+
+	if (IsEngineOn) {
+		fuelConsumption = 0.005f;
+	}
+
+	if (speed > 0) {
+		fuelConsumption = speed / 360.0f;
+	}
+
+	fuelLevel -= fuelConsumption;
+	if (fuelLevel < 0) {
+		fuelLevel = 0; // Ensure fuel level never goes below 0
+		turnEngineOff();
+	}
+	if (fuelLevel == 0) {
+		turnEngineOff();
+		if (speed > 0)
+			decreaseSpeed(20);
+	}
+}
+
+void Car::UpdateStatus() {
+	updateMileage();
+	consumeFuel();
+}
+
+#pragma endregion
+
+#pragma region GetMethods
 
 bool Car::isEngineOn() const {
 	return IsEngineOn;
@@ -118,11 +171,11 @@ int Car::getSpeed() const {
 	return speed;
 }
 
-int Car::getFuelLevel() const {
+float Car::getFuelLevel() const {
 	return fuelLevel;
 }
 
-int Car::getMilage() const {
+float Car::getMilage() const {
 	return milage;
 }
 
@@ -130,16 +183,15 @@ int Car::getCurrentGear() const {
 	return currentGear;
 }
 
-int Car::getEngineTemperature() const {
-	return engineTemperature;
-}
-	
 void Car::displayStatus() const {
 	cout << "Engine Status: " << (IsEngineOn ? "On" : "Off") << "\n";
 	cout << "Speed: " << speed << " km/h\n";
-	cout << "Fuel Level: " << fuelLevel << " liters\n";
-	cout << "Mileage: " << milage << " km\n";
+	cout << "Fuel Level: " << round(fuelLevel * 100) / 100 << " liters\n";
+	cout << "Mileage: " << round(milage * 100) / 100 << " km\n";
 	cout << "Current Gear: " << currentGear << "\n";
-	cout << "Engine Temperature: " << engineTemperature << " °C\n";
 	cout << "Hand brake Status: " << (IsHandBrakeActive ? "On" : "Off") << " \n";
 }
+
+#pragma endregion
+
+

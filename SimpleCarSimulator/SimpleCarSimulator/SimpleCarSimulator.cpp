@@ -2,15 +2,28 @@
 #include <conio.h>
 #include "Car.h"
 #include <thread>
+#include <chrono>
 
 using namespace std;
+
+enum Action {
+    TURN_ENGINE = 0,
+    TURN_HANDBRAKE = 1,
+    GEAR_UP = 2,
+    GEAR_DOWN = 3,
+    REFUEL = 4,
+    BRAKE = 5,
+    ACCELERATE = 6,
+    EXIT = 9,
+    INVALID = -1
+};
 
 int action;
 void clearConsole() {
     cout << "\033[2J\033[1;1H";
 }
 
-int chooseAction() {
+void showAction() {
     cout << "Choose one of the following actions:" << endl;
     cout << "Num 0. Turn Engine On/Off" << endl;
     cout << "Num 1. Turn Handbrake On/Off" << endl;
@@ -20,103 +33,80 @@ int chooseAction() {
     cout << "Num -. Brake" << endl;
     cout << "Num +. Accelerate" << endl;
     cout << "Num 9. Exit" << endl;
+}
 
-    int ch = _getch();  // Get a character without waiting for Enter
+Action chooseAction() {
+    char value = _getch();
 
-    switch (ch) {
-    case '0':
-        return 0;
-    case '1':
-        return 1;
-    case '2':
-        return 2;
-    case '3':
-        return 3;
-    case '4':
-        return 4;
-    case '-':
-        return 5;
-    case '+':
-        return 6;
-    case '9':
-        return 9;
-    case 107:  // Numpad +
-        return 6;
-    case 109:  // Numpad -
-        return 5;
-    default:
-        return -1;  // Invalid input
+    switch (value) {
+    case '0': return TURN_ENGINE;
+    case '1': return TURN_HANDBRAKE;
+    case '2': return GEAR_UP;
+    case '3': return GEAR_DOWN;
+    case '4': return REFUEL;
+    case '-': return BRAKE;
+    case '+': return ACCELERATE;
+    case '9': return EXIT;
+    default: return INVALID;
     }
+}
+
+bool isKeyPressed() {
+    // _kbhit() returns a non-zero value if a key was pressed
+    return _kbhit() != 0;
 }
 
 int main()
 {
 
     int refuelAmount;
-
     Car Opelek;
+
     do {
         clearConsole();
+        Opelek.UpdateStatus();
         Opelek.displayStatus();
         cout << endl;
+        showAction();
+        
 
-        action = chooseAction();
+        if (isKeyPressed()) {
+            action = chooseAction();
 
-        switch (action) {
-        case 0:     // Logika silnika
-            if (Opelek.isEngineOn()) {
-                Opelek.turnEngineOff();
-                while (!Opelek.isEngineOn() && Opelek.getSpeed() > 0) {
-                    clearConsole();
-					Opelek.decreaseSpeedEngineOff(); // Wytracanie prędkości
-                    Opelek.displayStatus(); // Wyświetl status po zmianie prędkości
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Opóźnienie
-                }
+            switch (action) {
+            case TURN_ENGINE:     // Engine logic
+                Opelek.changeEngineStatus();
+                break;
+            case TURN_HANDBRAKE:  // Handbrake logic
+                Opelek.changeHandBrakeStatus();
+                break;
+            case GEAR_UP:         // Gear up logic
+                Opelek.gearUp();
+                break;
+            case GEAR_DOWN:       // Gear down logic
+                Opelek.gearDown();
+                break;
+            case REFUEL:          // Refueling logic
+                cout << "Enter amount to refuel: ";
+                cin >> refuelAmount;
+                Opelek.refuel(refuelAmount);
+                break;
+            case BRAKE:           // Braking logic
+                Opelek.brake();
+                break;
+            case ACCELERATE:      // Acceleration logic
+                Opelek.accelerate();
+                break;
+            case EXIT:            // Exit
+                action = EXIT;
+                break;
+            case INVALID:         // Invalid input
+                cout << "Invalid option selected. Please try again." << endl;
+                break;
             }
-            else {
-                Opelek.turnEngineOn();
-            }
-            break;
-		case 1:	 // Logika hamulca ręcznego 
-            if (Opelek.isHandBrakeActive()) {
-                Opelek.turnHandBrakeOff();
-            }
-            else {
-                Opelek.turnHandBrakeOn();
-                while (Opelek.isHandBrakeActive() && Opelek.getSpeed() > 0) {
-                    Opelek.decreaseSpeedHandBrake(); // Wytracanie prędkości
-                    clearConsole();
-                    Opelek.displayStatus(); // Wyświetl status po zmianie prędkości
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Opóźnienie
-                }
-            }
-            break;
-		case 2:     // Logika zmiany biegu na wyższy
-            Opelek.gearUp();
-            break;
-        case 3:     // Logika zmiany biegu na niższy
-            Opelek.gearDown();
-            while (Opelek.getSpeed() > Opelek.getCurrentGear() * 30) {
-                clearConsole();
-				Opelek.adjustSpeedForGearDown(); // Wytracanie prędkości
-                Opelek.displayStatus(); // Wyświetl status po zmianie prędkości
-                std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Opóźnienie
-            }
-            break;
-		case 4:     // Logika tankowania
-            cout << "Enter amount to refuel: ";
-            cin >> refuelAmount;
-            Opelek.refuel(refuelAmount);
-            break;
-		case 5:     // Logika hamowania
-            Opelek.brake();
-            break;
-		case 6:     // Logika przyspieszania
-            Opelek.accelerate();
-            break;
-        case 9:
-            break;
         }
 
-    } while (action != 11);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Delay for 1 seconds
+
+    } while (action != EXIT);
 }

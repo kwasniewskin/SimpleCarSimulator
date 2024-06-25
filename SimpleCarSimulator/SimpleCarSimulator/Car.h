@@ -4,38 +4,39 @@ class Car
 private:
 	bool IsEngineOn;
 	int speed;
-	int fuelConsumption;
-	int fuelLevel;
+	float fuelLevel;
 	int maxFuelCapacity;
-	int milage;		//total distance traveled in km
+	float milage;
 	int currentGear;
 	bool IsHandBrakeActive;
-	int engineTemperature;
 
 public:
 	Car();
 	void turnEngineOn();
 	void turnEngineOff();
-	void decreaseSpeedEngineOff();
+	void changeEngineStatus();
 	void accelerate();
 	void brake();
+	void consumeFuel();
 	void refuel(int amount);
 	void gearUp();
 	void gearDown();
+	void adjustSpeedForGearUp();
 	void adjustSpeedForGearDown();
 	void turnHandBrakeOn();
 	void turnHandBrakeOff();
-	void decreaseSpeedHandBrake();
-	void adjustSpeedForGear();
+	void changeHandBrakeStatus();
+	void decreaseSpeed(int value);
+    void updateMileage();
+	void UpdateStatus();
 	
 	//Get methods
 	bool isEngineOn() const;
 	bool isHandBrakeActive() const;
 	int getSpeed() const;
-	int getFuelLevel() const;
-	int getMilage() const;
+	float getFuelLevel() const;
+	float getMilage() const;
 	int getCurrentGear() const;
-	int getEngineTemperature() const;
 	void displayStatus() const;
 
 
