@@ -1,4 +1,8 @@
 #pragma once
+#include <algorithm>
+#include <deque>
+#include <string>
+
 class Car
 {
 private:
@@ -6,9 +10,10 @@ private:
 	int speed;
 	float fuelLevel;
 	int maxFuelCapacity;
-	float milage;
+	float mileage;
 	int currentGear;
 	bool IsHandBrakeActive;
+	std::deque<std::string> events;
 
 public:
 	Car();
@@ -35,10 +40,13 @@ public:
 	bool isHandBrakeActive() const;
 	int getSpeed() const;
 	float getFuelLevel() const;
-	float getMilage() const;
+	float getMileage() const;
 	int getCurrentGear() const;
 	void displayStatus() const;
 
+	//Display methods
+	void displayEvents() const;
+	void addEvent(const std::string& event);
 
 
 

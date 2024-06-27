@@ -68,6 +68,8 @@ int main()
         Opelek.displayStatus();
         cout << endl;
         showAction();
+        cout << endl;
+        Opelek.displayEvents();
         
 
         if (isKeyPressed()) {
