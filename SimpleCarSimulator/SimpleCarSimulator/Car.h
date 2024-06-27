@@ -6,38 +6,42 @@
 class Car
 {
 private:
-	bool IsEngineOn;
+	bool isEngineOn;
+	bool isHandBrakeActive;
 	int speed;
 	float fuelLevel;
-	int maxFuelCapacity;
+	float maxFuelCapacity;
 	float mileage;
 	int currentGear;
-	bool IsHandBrakeActive;
 	std::deque<std::string> events;
+
+	void consumeFuel();
+	void adjustSpeedForGearUp();
+	void adjustSpeedForGearDown();
+	void decreaseSpeedToZero(int value);
+	void updateMileage();
+
+	//display methods
+	void addEvent(const std::string& event);
 
 public:
 	Car();
 	void turnEngineOn();
 	void turnEngineOff();
+	void turnHandBrakeOn();
+	void turnHandBrakeOff();
 	void changeEngineStatus();
+	void changeHandBrakeStatus();
 	void accelerate();
 	void brake();
-	void consumeFuel();
 	void refuel(int amount);
 	void gearUp();
 	void gearDown();
-	void adjustSpeedForGearUp();
-	void adjustSpeedForGearDown();
-	void turnHandBrakeOn();
-	void turnHandBrakeOff();
-	void changeHandBrakeStatus();
-	void decreaseSpeed(int value);
-    void updateMileage();
 	void UpdateStatus();
 	
 	//Get methods
-	bool isEngineOn() const;
-	bool isHandBrakeActive() const;
+	bool getIsEngineOn() const;
+	bool getIsHandBrakeActive() const;
 	int getSpeed() const;
 	float getFuelLevel() const;
 	float getMileage() const;
@@ -46,7 +50,6 @@ public:
 
 	//Display methods
 	void displayEvents() const;
-	void addEvent(const std::string& event);
 
 
 

@@ -6,12 +6,12 @@ using namespace std;
 
 //Construction deffinition
 Car::Car() :
-	IsEngineOn(false),
+	isEngineOn(false),
 	speed(0),
 	fuelLevel(30),
 	maxFuelCapacity(50),
 	currentGear(0),
-	IsHandBrakeActive(true),
+	isHandBrakeActive(true),
 	mileage(0)
 {
 }
@@ -19,20 +19,20 @@ Car::Car() :
 #pragma region Function Implementation
 
 void Car::turnEngineOn() {
-	IsEngineOn = true;
+	isEngineOn = true;
 	addEvent("Engine turned on");
 }
 
 void Car::turnEngineOff() {
-	IsEngineOn = false;
+	isEngineOn = false;
 	addEvent("Engine turned off");
 }
 
 void Car::changeEngineStatus() {
-	if (isEngineOn()) {
+	if (getIsEngineOn()) {
 		turnEngineOff();
 		if (speed > 0) {
-			decreaseSpeed(20);
+			decreaseSpeedToZero(20);
 			addEvent("*You have turned off the engine while driving!");
 		}
 	}
@@ -41,8 +41,8 @@ void Car::changeEngineStatus() {
 	}
 }
 
-void Car::decreaseSpeed(int value) {
-	if (speed > 0) {
+void Car::decreaseSpeedToZero(int value) {
+	while(speed > 0) {
 		speed -= value;
 	}
 
@@ -52,23 +52,23 @@ void Car::decreaseSpeed(int value) {
 }
 
 void Car::turnHandBrakeOn() {
-	IsHandBrakeActive = true;
+	isHandBrakeActive = true;
 	addEvent("Hand brake active");
 }
 
 void Car::turnHandBrakeOff() {
-	IsHandBrakeActive = false;
+	isHandBrakeActive = false;
 	addEvent("Hand brake inactive");
 }
 
 void Car::changeHandBrakeStatus() {
-	if (isHandBrakeActive()) {
+	if (getIsHandBrakeActive()) {
 		turnHandBrakeOff();
 	}
 	else {
 		turnHandBrakeOn();
 		if (speed != 0) {
-			decreaseSpeed(30);
+			decreaseSpeedToZero(30);
 			addEvent("*You have activated the handbrake while driving!");
 		}
 	}
@@ -107,8 +107,10 @@ void Car::adjustSpeedForGearUp() {
 void Car::adjustSpeedForGearDown() {
 	int maxSpeedForCurrentGear = currentGear * 30;
 	if (speed > maxSpeedForCurrentGear) {
-		speed -= 10;
 		addEvent("You are slowing down because you were driving too fast for that gear.");
+		while(speed >= maxSpeedForCurrentGear) {
+			speed -= 10;
+		}
 	}
 }
 
@@ -119,6 +121,7 @@ void Car::refuel(int amount) {
 		addEvent("You have refueled " + to_string(amount) + " liters of fuel.");
 	}
 	else if ((fuelLevel + amount) > maxFuelCapacity) {
+		fuelLevel = maxFuelCapacity;
 		addEvent("Too much gas or too smaller tank!");
 	}
 }
@@ -130,10 +133,10 @@ void Car::brake() {
 }
 
 void Car::accelerate() {
-	if (IsEngineOn == false) {
+	if (isEngineOn == false) {
 		addEvent("Unable to accelerate, engine is off.");
 	}
-	else if (IsHandBrakeActive == true) {
+	else if (isHandBrakeActive == true) {
 		addEvent("Unable to accelerate, hand brake is on.");
 	}
 	else if (fuelLevel <= 0) {
@@ -148,7 +151,7 @@ void Car::accelerate() {
 			speed += 10;
 		}
 		else {
-			addEvent("Unable to accelerate further");
+			addEvent("Unable to accelerate further, change gear.");
 		}
 	}
 }
@@ -163,7 +166,7 @@ void Car::updateMileage() {
 void Car::consumeFuel() {
 	float fuelConsumption = 0.00f;
 
-	if (IsEngineOn) {
+	if (isEngineOn) {
 		fuelConsumption = 0.005f;
 	}
 
@@ -180,7 +183,7 @@ void Car::consumeFuel() {
 		addEvent("You have run out of fuel");
 		turnEngineOff();
 		if (speed > 0)
-			decreaseSpeed(20);
+			decreaseSpeedToZero(20);
 	}
 }
 
@@ -193,12 +196,12 @@ void Car::UpdateStatus() {
 
 #pragma region GetMethods
 
-bool Car::isEngineOn() const {
-	return IsEngineOn;
+bool Car::getIsEngineOn() const {
+	return isEngineOn;
 }
 
-bool Car::isHandBrakeActive() const {
-	return IsHandBrakeActive;
+bool Car::getIsHandBrakeActive() const {
+	return isHandBrakeActive;
 }
 
 int Car::getSpeed() const {
@@ -223,12 +226,12 @@ int Car::getCurrentGear() const {
 #pragma region DisplayStatus
 
 void Car::displayStatus() const {
-	cout << "Engine Status: " << (IsEngineOn ? "On" : "Off") << "\n";
+	cout << "Engine Status: " << (isEngineOn ? "On" : "Off") << "\n";
 	cout << "Speed: " << speed << " km/h\n";
 	cout << "Fuel Level: " << round(fuelLevel * 100) / 100 << " liters\n";
 	cout << "Mileage: " << round(mileage * 100) / 100 << " km\n";
 	cout << "Current Gear: " << currentGear << "\n";
-	cout << "Hand brake Status: " << (IsHandBrakeActive ? "On" : "Off") << " \n";
+	cout << "Hand brake Status: " << (isHandBrakeActive ? "On" : "Off") << " \n";
 }
 
 void Car::addEvent(const string& event) {

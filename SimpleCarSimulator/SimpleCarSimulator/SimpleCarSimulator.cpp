@@ -3,26 +3,14 @@
 #include "Car.h"
 #include <thread>
 #include <chrono>
+#include "Actions.h"
 
 using namespace std;
-
-enum Action {
-    TURN_ENGINE = 0,
-    TURN_HANDBRAKE = 1,
-    GEAR_UP = 2,
-    GEAR_DOWN = 3,
-    REFUEL = 4,
-    BRAKE = 5,
-    ACCELERATE = 6,
-    EXIT = 9,
-    INVALID = -1
-};
 
 int action;
 void clearConsole() {
     cout << "\033[2J\033[1;1H";
 }
-
 void showAction() {
     cout << "Choose one of the following actions:" << endl;
     cout << "Num 0. Turn Engine On/Off" << endl;
@@ -34,7 +22,6 @@ void showAction() {
     cout << "Num +. Accelerate" << endl;
     cout << "Num 9. Exit" << endl;
 }
-
 Action chooseAction() {
     char value = _getch();
 
@@ -50,7 +37,6 @@ Action chooseAction() {
     default: return INVALID;
     }
 }
-
 bool isKeyPressed() {
     // _kbhit() returns a non-zero value if a key was pressed
     return _kbhit() != 0;
@@ -58,7 +44,6 @@ bool isKeyPressed() {
 
 int main()
 {
-
     int refuelAmount;
     Car Opelek;
 
@@ -70,7 +55,6 @@ int main()
         showAction();
         cout << endl;
         Opelek.displayEvents();
-        
 
         if (isKeyPressed()) {
             action = chooseAction();
@@ -108,7 +92,7 @@ int main()
             }
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // Delay for 1 seconds
+        this_thread::sleep_for(chrono::milliseconds(1000)); // Delay for 1 seconds
 
     } while (action != EXIT);
 }
